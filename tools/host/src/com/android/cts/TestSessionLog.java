@@ -46,7 +46,7 @@ public class TestSessionLog extends XMLResourceHandler {
     private static final String ATTRIBUTE_KNOWN_FAILURE = "KnownFailure";
 
     public static final String CTS_RESULT_FILE_NAME = "testResult.xml";
-    private static final String CTS_RESULT_FILE_VERSION = "1.10";
+    private static final String CTS_RESULT_FILE_VERSION = "1.11";
 
     static final String ATTRIBUTE_STARTTIME = "starttime";
     static final String ATTRIBUTE_ENDTIME = "endtime";
@@ -73,11 +73,11 @@ public class TestSessionLog extends XMLResourceHandler {
     static final String ATTRIBUTE_TYPE = "type";
     static final String ATTRIBUTE_UID = "uid";
     static final String ATTRIBUTE_OPEN_GL_ES_VERSION = "openGlEsVersion";
+    static final String ATTRIBUTE_PARTITIONS = "partitions";
 
     static final String ATTRIBUTE_PASS = "pass";
     static final String ATTRIBUTE_FAILED = "failed";
     static final String ATTRIBUTE_TIMEOUT = "timeout";
-    static final String ATTRIBUTE_OMITTED = "omitted";
     static final String ATTRIBUTE_NOT_EXECUTED = "notExecuted";
 
     static final String TAG_DEVICEINFO = "DeviceInfo";
@@ -327,6 +327,8 @@ public class TestSessionLog extends XMLResourceHandler {
                 setAttribute(doc, devInfoNode, ATTRIBUTE_IMSI, bldInfo.getIMSI());
                 setAttribute(doc, devInfoNode, ATTRIBUTE_OPEN_GL_ES_VERSION,
                         bldInfo.getOpenGlEsVersion());
+                setAttribute(doc, devInfoNode, ATTRIBUTE_PARTITIONS,
+                        bldInfo.getPartitions());
 
                 setAttribute(doc, devInfoNode,
                         DeviceParameterCollector.BUILD_FINGERPRINT, bldInfo.getBuildFingerPrint());
@@ -382,14 +384,12 @@ public class TestSessionLog extends XMLResourceHandler {
 
             int passNum = getTestList(CtsTestResult.CODE_PASS).size();
             int failNum = getTestList(CtsTestResult.CODE_FAIL).size();
-            int omittedNum = getTestList(CtsTestResult.CODE_OMITTED).size();
             int notExecutedNum = getTestList(CtsTestResult.CODE_NOT_EXECUTED).size();
             int timeOutNum = getTestList(CtsTestResult.CODE_TIMEOUT).size();
             Node summaryNode = doc.createElement(TAG_SUMMARY);
             root.appendChild(summaryNode);
             setAttribute(doc, summaryNode, ATTRIBUTE_PASS, passNum);
             setAttribute(doc, summaryNode, ATTRIBUTE_FAILED, failNum);
-            setAttribute(doc, summaryNode, ATTRIBUTE_OMITTED, omittedNum);
             setAttribute(doc, summaryNode, ATTRIBUTE_NOT_EXECUTED, notExecutedNum);
             setAttribute(doc, summaryNode, ATTRIBUTE_TIMEOUT, timeOutNum);
 

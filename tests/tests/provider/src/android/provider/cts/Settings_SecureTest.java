@@ -23,6 +23,7 @@ import dalvik.annotation.TestTargets;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.provider.Settings.SettingNotFoundException;
 import android.test.AndroidTestCase;

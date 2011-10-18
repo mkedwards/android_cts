@@ -39,7 +39,9 @@ public class TouchTest extends ActivityInstrumentationTestCase2<StubActivity> {
     private Activity mActivity;
     private static final String LONG_TEXT = "Scrolls the specified widget to the specified " +
             "coordinates, except constrains the X scrolling position to the horizontal regions " +
-            "of the text that will be visible after scrolling to the specified Y position.";
+            "of the text that will be visible after scrolling to the specified Y position." +
+            "This is the description of the test.";
+
     private boolean mReturnFromTouchEvent;
 
     public TouchTest() {
@@ -96,7 +98,7 @@ public class TouchTest extends ActivityInstrumentationTestCase2<StubActivity> {
             }
         });
         getInstrumentation().waitForIdleSync();
-        assertEquals(width - tv.getWidth(), tv.getScrollX());
+        assertEquals(width - tv.getWidth(), tv.getScrollX(), 1.0f);
         assertEquals(5, tv.getScrollY());
 
         runTestOnUiThread(new Runnable() {
@@ -105,7 +107,7 @@ public class TouchTest extends ActivityInstrumentationTestCase2<StubActivity> {
             }
         });
         getInstrumentation().waitForIdleSync();
-        assertEquals(width - tv.getWidth(), tv.getScrollX());
+        assertEquals(width - tv.getWidth(), tv.getScrollX(), 1.0f);
         assertEquals(5, tv.getScrollY());
     }
 

@@ -18,12 +18,10 @@ package android.widget.cts;
 
 import com.android.cts.stub.R;
 
-import dalvik.annotation.BrokenTest;
 import dalvik.annotation.TestLevel;
 import dalvik.annotation.TestTargetClass;
 import dalvik.annotation.TestTargetNew;
 import dalvik.annotation.TestTargets;
-import dalvik.annotation.ToBeFixed;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -32,9 +30,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
-import android.view.KeyEvent;
 import android.view.View.MeasureSpec;
 import android.view.animation.cts.DelayedCheck;
 import android.widget.MediaController;
@@ -240,142 +236,6 @@ public class VideoViewTest extends ActivityInstrumentationTestCase2<VideoViewStu
         }.run();
     }
 
-    @TestTargets({
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setVideoURI",
-            args = {android.net.Uri.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "setOnPreparedListener",
-            args = {android.media.MediaPlayer.OnPreparedListener.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "isPlaying",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "pause",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "start",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "seekTo",
-            args = {int.class}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "stopPlayback",
-            args = {}
-        ),
-        @TestTargetNew(
-            level = TestLevel.COMPLETE,
-            method = "getCurrentPosition",
-            args = {}
-        )
-    })
-    @BrokenTest("Fails in individual mode (current pos > 0 before start)")
-    public void testPlayVideo2() throws Throwable {
-        final int seekTo = mVideoView.getDuration() >> 1;
-        final MockOnPreparedListener listener = new MockOnPreparedListener();
-        mVideoView.setOnPreparedListener(listener);
-
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.setVideoURI(Uri.parse(mVideoPath));
-            }
-        });
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return listener.isTriggered();
-            }
-        }.run();
-        assertEquals(0, mVideoView.getCurrentPosition());
-
-        // test start
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.start();
-            }
-        });
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return mVideoView.isPlaying();
-            }
-        }.run();
-        assertTrue(mVideoView.getCurrentPosition() > 0);
-
-        // test pause
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.pause();
-            }
-        });
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return !mVideoView.isPlaying();
-            }
-        }.run();
-        int currentPosition = mVideoView.getCurrentPosition();
-
-        // sleep a second and then check whether player is paused.
-        Thread.sleep(OPERATION_INTERVAL);
-        assertEquals(currentPosition, mVideoView.getCurrentPosition());
-
-        // test seekTo
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.seekTo(seekTo);
-            }
-        });
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return mVideoView.getCurrentPosition() >= seekTo;
-            }
-        }.run();
-        assertFalse(mVideoView.isPlaying());
-
-        // test start again
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.start();
-            }
-        });
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return mVideoView.isPlaying();
-            }
-        }.run();
-        assertTrue(mVideoView.getCurrentPosition() > seekTo);
-
-        // test stop
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.stopPlayback();
-            }
-        });
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return !mVideoView.isPlaying();
-            }
-        }.run();
-        assertEquals(0, mVideoView.getCurrentPosition());
-    }
-
     @TestTargetNew(
         level = TestLevel.COMPLETE,
         method = "setOnErrorListener",
@@ -446,92 +306,6 @@ public class VideoViewTest extends ActivityInstrumentationTestCase2<VideoViewStu
 
         resolvedSize = mVideoView.resolveAdjustedSize(desiredSize, MeasureSpec.EXACTLY);
         assertEquals(specSize, resolvedSize);
-    }
-
-    @TestTargetNew(
-        level = TestLevel.NOT_NECESSARY,
-        method = "onTouchEvent",
-        args = {android.view.MotionEvent.class}
-    )
-    public void testOnTouchEvent() {
-        // onTouchEvent() is implementation details, do NOT test
-    }
-
-    @TestTargetNew(
-        level = TestLevel.SUFFICIENT,
-        method = "onKeyDown",
-        args = {int.class, android.view.KeyEvent.class}
-    )
-    @ToBeFixed(bug = "", explanation = "After pressing KEYCODE_HEADSETHOOK, "
-            + "the video should be playing, but it did not until time out.")
-    @BrokenTest("Video starts playing automatically after setting the path.")
-    public void testOnKeyDown() throws Throwable {
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.setVideoPath(mVideoPath);
-                mVideoView.requestFocus();
-            }
-        });
-        mInstrumentation.waitForIdleSync();
-
-        assertFalse(mVideoView.isPlaying());
-        sendKeys(KeyEvent.KEYCODE_HEADSETHOOK);
-        // video should be played.
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return !mVideoView.isPlaying();
-            }
-        }.run();
-        assertFalse(mMediaController.isShowing());
-
-        sendKeys(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return !mVideoView.isPlaying();
-            }
-        }.run();
-        // MediaController should show
-        assertFalse(mMediaController.isShowing());
-
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mVideoView.start();
-            }
-        });
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return mVideoView.isPlaying();
-            }
-        }.run();
-
-        sendKeys(KeyEvent.KEYCODE_MEDIA_STOP);
-        new DelayedCheck(TIME_OUT) {
-            @Override
-            protected boolean check() {
-                return !mVideoView.isPlaying();
-            }
-        }.run();
-    }
-
-    @TestTargetNew(
-        level = TestLevel.NOT_NECESSARY,
-        method = "onMeasure",
-        args = {int.class, int.class}
-    )
-    public void testOnMeasure() {
-        // Do not test onMeasure(), implementation details
-    }
-
-    @TestTargetNew(
-        level = TestLevel.NOT_NECESSARY,
-        method = "onTrackballEvent",
-        args = {android.view.MotionEvent.class}
-    )
-    public void testOnTrackballEvent() {
-        // Do not test onTrackballEvent(), implementation details
     }
 
     @TestTargetNew(
